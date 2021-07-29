@@ -1,23 +1,37 @@
+/* Programa para el sensor ultrasonico
+ * Por: Victor Hugo Flores Vargas
+ * Este programa esta hecho para el sensor
+ * HC-SR04
+ * Toma medidas en centimetros e implementa
+ * un boton de paro
+ * Fecha: 29-Julio-2021
+ */
+
+// Constantes
 const byte Trig = 7;
 const byte Echo = 8;
 const byte button = 2;
+// Variables
 long tiempoInicial, tiempoFinal; //Medir los 10us
-bool button_state = false;
+bool button_state;
 float distancia, tiempo;
 
 void setup() {
+  //Iniciamos comunicacion serial
   Serial.begin(9600);
-  Serial.println("Programa iniciado");
-  Serial.println("Esperando boton accionador");
+  //Configuramos los pines como E/S
   pinMode(Trig, OUTPUT);
   pinMode(Echo, INPUT);
+  pinMode(button, INPUT);
+  //Configuramos el pin button como ISR
   attachInterrupt (digitalPinToInterrupt (button), Bandera, FALLING);
+  //Iniciamos Trigger como bajo
   digitalWrite(Trig, LOW);
-}
+  //Inicializamos el boton como falso
+  button_state = false;
+}//Fin void setup
 
 void loop() {
-  if (button_state == true){
-    Serial.println("Boton accionado");
     /*
    tiempoFinal = 0;
    tiempoInicial = 0;
@@ -27,23 +41,32 @@ void loop() {
     tiempoFinal = micros();
    }//fin while
    */
-   digitalWrite(Trig, HIGH);
-   delayMicroseconds(10);
-   digitalWrite(Trig, LOW);
-   tiempo = pulseIn(Echo, HIGH);
-   distancia = tiempo/59;
-   Serial.print("Distancia: ");
-   Serial.println(distancia);
-   delay(500);
-  }//Fin if
+   //Bucle que opera mientras el estado del boton sea true
+   while (button_state == true){
+    //Pulso de 10us para Trigger
+    digitalWrite(Trig, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(Trig, LOW);
+    //Lectura del positive duty cycle de la señal Echo
+    tiempo = pulseIn(Echo, HIGH);
+    //Calculo de la distancia conociendo el tiempo
+    distancia = tiempo/59;
+    //Imprimimos por serial la distancia obtenida
+    Serial.print("Distancia: ");
+    Serial.print(distancia);
+    Serial.println(" cm");
+    delay(500);
+   }
+   
 }
-
+// Funcion que conmuta el estado de la bandera
 void Bandera(){
   if (button_state == true){
-    button_state == false;
-    Serial.println("Programa Detenido");
+    button_state = false;
+    Serial.println("Programa Detenido"); //Imprime que el programa se ha detenido
   }
   else{
-    button_state == true;
+    button_state = true;
+    Serial.println("Programa Iniciado");
   }
 }
