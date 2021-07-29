@@ -15,6 +15,7 @@ const byte button = 2;
 long tiempoInicial, tiempoFinal; //Medir los 10us
 bool button_state;
 float distancia, tiempo;
+int i;
 
 void setup() {
   //Iniciamos comunicacion serial
@@ -43,21 +44,26 @@ void loop() {
    */
    //Bucle que opera mientras el estado del boton sea true
    while (button_state == true){
-    //Pulso de 10us para Trigger
-    digitalWrite(Trig, HIGH);
-    delayMicroseconds(10);
-    digitalWrite(Trig, LOW);
-    //Lectura del positive duty cycle de la señal Echo
-    tiempo = pulseIn(Echo, HIGH);
-    //Calculo de la distancia conociendo el tiempo
-    distancia = tiempo/59;
-    //Imprimimos por serial la distancia obtenida
-    Serial.print("Distancia: ");
-    Serial.print(distancia);
-    Serial.println(" cm");
-    delay(500);
+      distancia = 0;
+      i = 0;
+      //Loop para sacar el promedio de 10 distancias
+      for(i; i<10; i++){
+        //Pulso de 10us para Trigger
+        digitalWrite(Trig, HIGH);
+        delayMicroseconds(10);
+        digitalWrite(Trig, LOW);
+        //Lectura del positive duty cycle de la señal Echo
+        tiempo = pulseIn(Echo, HIGH);
+        //Calculo de la distancia conociendo el tiempo
+        distancia = distancia + tiempo/59;
+      }
+   //Imprimimos por serial la distancia obtenida   
+   distancia = distancia/10;
+   Serial.print("Distancia: ");
+   Serial.print(distancia);
+   Serial.println(" cm");
+   delay(500);
    }
-   
 }
 // Funcion que conmuta el estado de la bandera
 void Bandera(){
