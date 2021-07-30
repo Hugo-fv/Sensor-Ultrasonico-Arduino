@@ -11,6 +11,7 @@
 const byte Trig = 7;
 const byte Echo = 8;
 const byte button = 2;
+const byte ledCerca = 6;
 // Variables
 long tiempoInicial, tiempoFinal; //Medir los 10us
 bool button_state;
@@ -24,24 +25,17 @@ void setup() {
   pinMode(Trig, OUTPUT);
   pinMode(Echo, INPUT);
   pinMode(button, INPUT);
+  pinMode(ledCerca, OUTPUT);
   //Configuramos el pin button como ISR
   attachInterrupt (digitalPinToInterrupt (button), Bandera, FALLING);
   //Iniciamos Trigger como bajo
   digitalWrite(Trig, LOW);
+  digitalWrite(ledCerca, LOW);
   //Inicializamos el boton como falso
   button_state = false;
 }//Fin void setup
 
 void loop() {
-    /*
-   tiempoFinal = 0;
-   tiempoInicial = 0;
-   while(tiempoFinal-tiempoInicial < 10){ // Crear señal cuadrada de 10us
-    digitalWrite(Trig, HIGH);
-    tiempoInicial = tiempoFinal;
-    tiempoFinal = micros();
-   }//fin while
-   */
    //Bucle que opera mientras el estado del boton sea true
    while (button_state == true){
       distancia = 0;
@@ -62,6 +56,12 @@ void loop() {
    Serial.print("Distancia: ");
    Serial.print(distancia);
    Serial.println(" cm");
+   if (distancia <= 20){
+    digitalWrite(ledCerca, HIGH);
+   }
+   else{
+    digitalWrite(ledCerca, LOW);
+   }
    delay(500);
    }
 }
@@ -70,6 +70,7 @@ void Bandera(){
   if (button_state == true){
     button_state = false;
     Serial.println("Programa Detenido"); //Imprime que el programa se ha detenido
+    digitalWrite(ledCerca, LOW);
   }
   else{
     button_state = true;
